@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import {
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
 import QRCode from 'qrcode';
 import ConfigNotice from '../components/ConfigNotice.jsx';
 import { auth, isConfigured } from '../firebase.js';
@@ -7,7 +12,13 @@ import { defaultEventId } from '../lib/eventId.js';
 import { useAllPhotos } from '../hooks/useAllPhotos.js';
 import { useEventDoc } from '../hooks/useEventDoc.js';
 import { uploadPhoto, friendlyError } from '../lib/uploadPhoto.js';
-import { deletePhoto, saveTitle, setHidden, signInErrorMessage } from '../lib/adminActions.js';
+import {
+  deletePhoto,
+  resetErrorMessage,
+  saveTitle,
+  setHidden,
+  signInErrorMessage,
+} from '../lib/adminActions.js';
 import './Admin.css';
 
 // Seeding an exported album means dozens to hundreds of files. Sequential is
@@ -20,16 +31,35 @@ function SignIn() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true);
     setError(null);
+    setNotice(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
       setError(signInErrorMessage(err));
       setBusy(false);
+    }
+  };
+
+  const resetPassword = async () => {
+    setError(null);
+    setNotice(null);
+    if (!email.trim()) {
+      setError('Enter the account email first, then tap reset.');
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email.trim());
+      // Deliberately vague: confirming which addresses have accounts would
+      // undo the project's email enumeration protection.
+      setNotice('If that address has an account, a reset link is on its way.');
+    } catch (err) {
+      setError(resetErrorMessage(err));
     }
   };
 
@@ -59,6 +89,10 @@ function SignIn() {
         {busy ? 'Signing in…' : 'Sign in'}
       </button>
       {error ? <div className="ad-msg error">{error}</div> : null}
+      {notice ? <div className="ad-msg">{notice}</div> : null}
+      <button type="button" className="ad-link" onClick={resetPassword}>
+        Forgot password?
+      </button>
     </form>
   );
 }
@@ -331,7 +365,14 @@ export default function Admin() {
           <h1 className="ad-h1">{eventId}</h1>
         </div>
         <div className="ad-row">
-          <span className="ad-msg">{user.email}</span>
+          {/* The UID is shown because writes are authorised by UID in the
+              security rules — if moderation fails, this is the value to
+              compare against the one in firestore.rules. */}
+          <span className="ad-msg">
+            {user.email}
+            <br />
+            <span className="ad-uid">{user.uid}</span>
+          </span>
           <button className="ad-btn" onClick={() => signOut(auth)}>
             Sign out
           </button>

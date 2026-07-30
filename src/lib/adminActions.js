@@ -27,11 +27,26 @@ export function saveTitle(eventId, title, exists) {
 
 export function signInErrorMessage(err) {
   const code = err?.code || '';
-  if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found'))
+  // Firebase returns auth/invalid-login-credentials for a wrong password on
+  // projects with email enumeration protection, and auth/invalid-credential on
+  // others. Match both — the shared substring is 'credential'.
+  if (code.includes('credential') || code.includes('wrong-password') || code.includes('user-not-found'))
     return 'That email and password combination was not recognised.';
   if (code.includes('invalid-email')) return 'That does not look like an email address.';
+  if (code.includes('user-disabled')) return 'That account has been disabled.';
   if (code.includes('too-many-requests'))
-    return 'Too many attempts. Wait a minute and try again.';
+    return 'Too many failed attempts. Wait a minute, or reset the password below.';
   if (code.includes('network')) return 'Could not reach Firebase. Check your connection.';
-  return 'Could not sign in. Please try again.';
+  if (code.includes('operation-not-allowed'))
+    return 'Email/password sign-in is switched off for this project.';
+  // Anything unmapped names its code, so the next surprise is diagnosable
+  // rather than a dead end.
+  return `Could not sign in${code ? ` (${code})` : ''}.`;
+}
+
+export function resetErrorMessage(err) {
+  const code = err?.code || '';
+  if (code.includes('invalid-email')) return 'That does not look like an email address.';
+  if (code.includes('too-many-requests')) return 'Too many requests. Wait a minute and try again.';
+  return `Could not send the reset email${code ? ` (${code})` : ''}.`;
 }

@@ -29,4 +29,12 @@ export const db = app ? getFirestore(app) : null;
 export const storage = app ? getStorage(app) : null;
 export const auth = app ? getAuth(app) : null;
 
+// Firebase retries a failing upload for two minutes by default. On venue wifi
+// that leaves a guest watching a dead "Sending…" button with no way to judge
+// whether it's working. Fail fast enough to offer them a retry instead.
+if (storage) {
+  storage.maxUploadRetryTime = 20000;
+  storage.maxOperationRetryTime = 20000;
+}
+
 export default app;

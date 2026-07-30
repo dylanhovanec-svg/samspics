@@ -41,7 +41,8 @@ Following the build order in `HANDOFF.md`:
 
 - [x] 1. Scaffold — Vite + React + Router, Firebase init, three routes
 - [x] 2. Firestore + Storage rules — written; **not yet deployed**
-- [ ] 3. Guest upload page
+- [x] 3. Guest upload page — guest photos go live immediately (see
+      `src/lib/uploadPhoto.js` to switch to pre-moderation)
 - [x] 4. Display carousel, ported from `reference/EventPhotoCircle.jsx`
 - [ ] 5. Admin console
 - [ ] 6. Deploy

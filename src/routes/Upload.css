@@ -1,0 +1,166 @@
+.up-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+.up-card {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.up-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(28px, 8vw, 40px);
+  line-height: 1.05;
+  margin: 0;
+}
+
+.up-sub {
+  color: var(--muted);
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* Big tap target — this is used one-handed, in a dim room, by people who have
+   never seen the page before. */
+.up-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 170px;
+  padding: 22px;
+  border-radius: 22px;
+  border: 2px dashed rgba(232, 184, 75, 0.45);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+}
+
+.up-pick.has-preview {
+  border-style: solid;
+  border-color: var(--gold);
+  min-height: 260px;
+}
+
+.up-pick-icon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.up-pick-hint {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.up-retake {
+  align-self: center;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.up-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.up-field label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.up-field input,
+.up-field textarea {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 16px; /* 16px keeps iOS from zooming on focus */
+  resize: none;
+}
+
+.up-field input:focus,
+.up-field textarea:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+
+.up-count {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+
+.up-submit {
+  width: 100%;
+  padding: 17px;
+  border-radius: 999px;
+  border: none;
+  background: var(--gold);
+  color: #241a30;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.up-submit:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.up-secondary {
+  width: 100%;
+  padding: 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.up-error {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(224, 106, 138, 0.4);
+  background: rgba(224, 106, 138, 0.12);
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.up-success-mark {
+  font-size: 54px;
+  line-height: 1;
+}

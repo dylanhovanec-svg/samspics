@@ -241,6 +241,7 @@ export default function Upload() {
             <div>detected as in-app browser: {String(inApp)}</div>
             <div>samsung internet: {String(samsung)}</div>
             <div>standalone: {String(window.matchMedia('(display-mode: standalone)').matches)}</div>
+            <div>build: {__BUILD_ID__}</div>
             <div style={{ marginTop: 6, wordBreak: 'break-all' }}>UA: {navigator.userAgent}</div>
           </div>
         ) : null}
@@ -279,6 +280,7 @@ export default function Upload() {
         <button type="submit" className="up-submit" disabled={!file || state === 'sending'}>
           {state === 'sending' ? 'Sending…' : 'Send it to the screen'}
         </button>
+        <div className="up-build">build {__BUILD_ID__}</div>
       </form>
     </main>
   );

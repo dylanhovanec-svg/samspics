@@ -150,6 +150,13 @@
   cursor: pointer;
 }
 
+.up-build {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  color: rgba(169, 156, 184, 0.5);
+  text-align: center;
+}
+
 .up-debug {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;

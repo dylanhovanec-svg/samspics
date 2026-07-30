@@ -24,6 +24,9 @@ export default function PhotoCircle({ photos, title, emptyMessage }) {
   const [playing, setPlaying] = useState(true);
   const [speedIdx, setSpeedIdx] = useState(1);
   const [controlsVisible, setControlsVisible] = useState(true);
+  // Ring off gives the featured photo the whole stage — for rooms where the
+  // screen is far away and the thumbnails are just costing size.
+  const [ringOn, setRingOn] = useState(true);
   const rootRef = useRef(null);
 
   const count = photos.length;
@@ -67,7 +70,7 @@ export default function PhotoCircle({ photos, title, emptyMessage }) {
       else if (e.key === ' ') {
         e.preventDefault();
         setPlaying((p) => !p);
-      }
+      } else if (e.key === 'r' || e.key === 'R') setRingOn((r) => !r);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -132,7 +135,7 @@ export default function PhotoCircle({ photos, title, emptyMessage }) {
   // the active photo, so advancing never needs a rotation that unwinds
   // backwards through a full turn on wrap-around.
   const ring = useMemo(() => {
-    if (count === 0) return [];
+    if (count === 0 || !ringOn) return [];
     const visible = Math.min(count, RING_SLOTS);
     const stepDeg = 360 / visible;
     const half = Math.floor((visible - 1) / 2);
@@ -144,14 +147,16 @@ export default function PhotoCircle({ photos, title, emptyMessage }) {
         photo: photos[index],
         index,
         offset,
-        left: 50 + 43 * Math.cos(angle),
-        top: 50 + 43 * Math.sin(angle),
+        // 44% radius + 6% thumb radius lands the outer edge exactly on the
+        // stage boundary, so the ring is as wide as it can be.
+        left: 50 + 44 * Math.cos(angle),
+        top: 50 + 44 * Math.sin(angle),
         // Fade the ends so photos entering and leaving the window don't pop.
         edge: Math.abs(offset) === half && visible === RING_SLOTS,
       });
     }
     return items;
-  }, [photos, safeCurrent, count]);
+  }, [photos, safeCurrent, count, ringOn]);
 
   const toggleFullscreen = () => {
     const el = rootRef.current;
@@ -167,7 +172,7 @@ export default function PhotoCircle({ photos, title, emptyMessage }) {
       </div>
 
       <div className="pc-stage-wrap">
-        <div className="pc-stage">
+        <div className={`pc-stage ${ringOn ? "" : "solo"}`}>
           <div className="pc-glow" />
 
           <div className="pc-center">
@@ -234,6 +239,9 @@ export default function PhotoCircle({ photos, title, emptyMessage }) {
           ))}
         </div>
 
+        <button className="pc-btn" onClick={() => setRingOn((r) => !r)}>
+          {ringOn ? '◎ Bigger photo' : '◍ Show ring'}
+        </button>
         <button className="pc-btn" onClick={toggleFullscreen}>
           ⤢ Fullscreen
         </button>
@@ -241,7 +249,7 @@ export default function PhotoCircle({ photos, title, emptyMessage }) {
 
       <div className={`pc-hint ${controlsVisible ? '' : 'hidden'}`}>
         {count > 0
-          ? `${count} photo${count === 1 ? '' : 's'} · arrow keys to move, space to pause`
+          ? `${count} photo${count === 1 ? '' : 's'} · arrows to move, space to pause, R for ring`
           : ''}
       </div>
     </div>

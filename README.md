@@ -40,7 +40,7 @@ two always use `VITE_EVENT_ID`.
 Following the build order in `HANDOFF.md`:
 
 - [x] 1. Scaffold — Vite + React + Router, Firebase init, three routes
-- [x] 2. Firestore + Storage rules — written; **not yet deployed**
+- [x] 2. Firestore + Storage rules — deployed and verified against the live project
 - [x] 3. Guest upload page — guest photos go live immediately (see
       `src/lib/uploadPhoto.js` to switch to pre-moderation)
 - [x] 4. Display carousel, ported from `reference/EventPhotoCircle.jsx`
@@ -56,6 +56,16 @@ npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage --pro
 
 This also creates the composite index the display query needs, so you don't have
 to click through the console link.
+
+### Deploying the app
+
+`.env` must be filled in first — Vite inlines those values at build time, so a
+build made without them produces an app that cannot reach Firebase.
+
+```bash
+npm run build
+npx firebase-tools deploy --only hosting --project sams-pics
+```
 
 ### Rehearsing the display
 

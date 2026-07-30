@@ -67,6 +67,20 @@ npm run build
 npx firebase-tools deploy --only hosting --project sams-pics
 ```
 
+### Deploying to Vercel
+
+`vercel.json` sets the framework, output directory and the SPA rewrite — without
+that rewrite `/upload` and `/admin` 404 on a hard load, which breaks the QR code
+since that is exactly how guests arrive.
+
+Vercel never sees the local `.env` (it is gitignored), so all seven `VITE_`
+variables must be set under **Settings → Environment Variables** for the
+Production and Preview environments. A build without them succeeds and produces
+an app that cannot reach Firebase.
+
+Node 22.12+ is required by the build toolchain; `engines.node` in `package.json`
+tells Vercel which major to use.
+
 ### Rehearsing the display
 
 `/?demo` renders six placeholder photos and `/?demo=40` renders forty, so the

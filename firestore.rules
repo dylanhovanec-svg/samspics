@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid == 'EYfA528L8IQQkr3z86FSAMjnDm32';
+    }
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isAdmin();
+      match /photos/{photoId} {
+        function isValidGuestPhoto() {
+          let d = request.resource.data;
+          return d.keys().hasAll(['url','storagePath','source','hidden','createdAt'])
+            && d.source == 'guest'
+            && d.hidden == false
+            && d.url is string
+            && d.storagePath is string
+            && d.storagePath.matches('events/' + eventId + '/uploads/.*')
+            && d.createdAt == request.time
+            && (!('caption' in d)      || (d.caption is string && d.caption.size() <= 140))
+            && (!('uploaderName' in d) || (d.uploaderName is string && d.uploaderName.size() <= 60));
+        }
+        // Display + upload confirmation can read.
+        allow read: if true;
+        // Guests may add a photo (validated); admin may add seed photos.
+        allow create: if isValidGuestPhoto() || isAdmin();
+        // Only the admin can hide, edit, or delete.
+        allow update, delete: if isAdmin();
+      }
+    }
+  }
+}

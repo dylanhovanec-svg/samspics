@@ -40,11 +40,26 @@ two always use `VITE_EVENT_ID`.
 Following the build order in `HANDOFF.md`:
 
 - [x] 1. Scaffold — Vite + React + Router, Firebase init, three routes
-- [ ] 2. Firestore + Storage rules (needs the admin UID)
+- [x] 2. Firestore + Storage rules — written; **not yet deployed**
 - [ ] 3. Guest upload page
-- [ ] 4. Display carousel, ported from `reference/EventPhotoCircle.jsx`
+- [x] 4. Display carousel, ported from `reference/EventPhotoCircle.jsx`
 - [ ] 5. Admin console
 - [ ] 6. Deploy
+
+### Deploying the rules
+
+```bash
+npx firebase-tools login
+npx firebase-tools deploy --only firestore:rules,firestore:indexes,storage --project sams-pics
+```
+
+This also creates the composite index the display query needs, so you don't have
+to click through the console link.
+
+### Rehearsing the display
+
+`/?demo` renders six placeholder photos and `/?demo=40` renders forty, so the
+carousel can be checked on the venue screen before any real photos exist.
 
 ## Notes on dependencies
 

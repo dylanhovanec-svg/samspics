@@ -1,0 +1,16 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid == 'EYfA528L8IQQkr3z86FSAMjnDm32';
+    }
+    match /events/{eventId}/uploads/{fileName} {
+      allow read: if true;
+      // Guest + admin uploads: image content-type only, capped at 15 MB.
+      allow create: if request.resource.size < 15 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+      allow delete: if isAdmin();
+    }
+  }
+}

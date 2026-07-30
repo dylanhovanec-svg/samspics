@@ -12,6 +12,9 @@ cp .env.example .env   # fill in from the Firebase console
 npm run dev
 ```
 
+No Firebase project yet? Follow [`SETUP.md`](./SETUP.md) — it walks through
+creating the project, enabling Firestore/Storage/Auth, and finding each value.
+
 | Script            | Purpose                          |
 |-------------------|----------------------------------|
 | `npm run dev`     | Local dev server                 |

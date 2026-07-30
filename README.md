@@ -44,7 +44,7 @@ Following the build order in `HANDOFF.md`:
 - [x] 3. Guest upload page — guest photos go live immediately (see
       `src/lib/uploadPhoto.js` to switch to pre-moderation)
 - [x] 4. Display carousel, ported from `reference/EventPhotoCircle.jsx`
-- [ ] 5. Admin console
+- [x] 5. Admin console — auth gate, bulk seed, moderation, title, QR
 - [ ] 6. Deploy
 
 ### Deploying the rules

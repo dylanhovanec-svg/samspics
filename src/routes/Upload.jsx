@@ -13,6 +13,21 @@ const MAX_CAPTION = 140;
 // WebView rather than handing it to Chrome. Those WebViews commonly refuse
 // access to the photo gallery, leaving only the camera — which looks like a bug
 // in this page but cannot be fixed from inside it. Detect it and say so.
+// Samsung Internet ships as the default browser on Samsung phones. Its upload
+// chooser offers the camera and Android's document picker but never the Gallery
+// app, which leaves guests believing they cannot send an existing photo. No
+// accept value changes this — the way out is to open the page in Chrome.
+function isSamsungInternet() {
+  return typeof navigator !== 'undefined' && /SamsungBrowser/i.test(navigator.userAgent || '');
+}
+
+// Android intent URI: hands the same https URL to Chrome. Samsung Internet
+// honours these, and Chrome is preinstalled on Samsung devices.
+function chromeIntentUrl() {
+  const { host, pathname, search } = window.location;
+  return `intent://${host}${pathname}${search}#Intent;scheme=https;package=com.android.chrome;end`;
+}
+
 function isAndroid() {
   return typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '');
 }
@@ -55,6 +70,7 @@ export default function Upload() {
   const fileRef = useRef(null);
   const inApp = isInAppBrowser();
   const android = isAndroid();
+  const samsung = isSamsungInternet();
 
   // Object URLs leak if a guest picks several photos before sending.
   useEffect(() => {
@@ -151,7 +167,21 @@ export default function Upload() {
         </div>
         <p className="up-sub">It goes straight up on the big screen.</p>
 
-        {!inApp && android ? (
+        {!inApp && samsung ? (
+          <div className="up-note">
+            <strong>Samsung Internet doesn&rsquo;t show your gallery</strong> when uploading. Open
+            this page in Chrome and your photos will be there.
+            <a className="up-note-btn" href={chromeIntentUrl()}>
+              Open in Chrome
+            </a>
+            <span className="up-note-alt">
+              Or stay here and tap <strong>Files</strong>, then <strong>Images</strong> — the same
+              photos are in there.
+            </span>
+          </div>
+        ) : null}
+
+        {!inApp && android && !samsung ? (
           <div className="up-note">
             Only offered <strong>Camera</strong> and <strong>Files</strong>? Your gallery photos are
             in there — tap <strong>Files</strong>, then <strong>Images</strong> or{' '}
@@ -209,6 +239,7 @@ export default function Upload() {
             <div>accept: {acceptValue ?? 'not set'}</div>
             <div>android: {String(android)}</div>
             <div>detected as in-app browser: {String(inApp)}</div>
+            <div>samsung internet: {String(samsung)}</div>
             <div>standalone: {String(window.matchMedia('(display-mode: standalone)').matches)}</div>
             <div style={{ marginTop: 6, wordBreak: 'break-all' }}>UA: {navigator.userAgent}</div>
           </div>

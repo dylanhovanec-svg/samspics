@@ -171,6 +171,26 @@
   text-align: left;
 }
 
+.up-note-btn {
+  display: block;
+  margin: 12px 0 0;
+  padding: 13px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #241a30;
+  font-weight: 600;
+  font-size: 15px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.up-note-alt {
+  display: block;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
 .up-error {
   padding: 14px 16px;
   border-radius: 14px;

@@ -41,7 +41,9 @@ const PICKER_MODES = {
 export default function Upload() {
   const { search } = useLocation();
   const eventId = getEventId(search);
-  const pickerMode = new URLSearchParams(search).get('picker');
+  const params = new URLSearchParams(search);
+  const pickerMode = params.get('picker');
+  const debug = params.has('debug');
   const acceptValue = pickerMode in PICKER_MODES ? PICKER_MODES[pickerMode] : 'image/*';
 
   const [file, setFile] = useState(null);
@@ -200,6 +202,15 @@ export default function Upload() {
         {pickerMode ? (
           <div className="up-count">
             picker mode: {pickerMode} (accept={acceptValue ?? 'not set'})
+          </div>
+        ) : null}
+        {debug ? (
+          <div className="up-debug">
+            <div>accept: {acceptValue ?? 'not set'}</div>
+            <div>android: {String(android)}</div>
+            <div>detected as in-app browser: {String(inApp)}</div>
+            <div>standalone: {String(window.matchMedia('(display-mode: standalone)').matches)}</div>
+            <div style={{ marginTop: 6, wordBreak: 'break-all' }}>UA: {navigator.userAgent}</div>
           </div>
         ) : null}
 

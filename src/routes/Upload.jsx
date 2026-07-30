@@ -26,9 +26,23 @@ function isInAppBrowser() {
   );
 }
 
+// Which Android providers appear in the file chooser is decided by the OS from
+// the accept attribute, and it varies by device and by which gallery app is
+// installed. Rather than guess and redeploy, ?picker= switches the variants so
+// all three can be tried on the real phone in one visit.
+//   (default)      accept="image/*"  — correct for iOS and most Android
+//   ?picker=any    accept="*/*"      — widest net
+//   ?picker=none   no accept at all  — some pickers only show everything then
+const PICKER_MODES = {
+  any: '*/*',
+  none: undefined,
+};
+
 export default function Upload() {
   const { search } = useLocation();
   const eventId = getEventId(search);
+  const pickerMode = new URLSearchParams(search).get('picker');
+  const acceptValue = pickerMode in PICKER_MODES ? PICKER_MODES[pickerMode] : 'image/*';
 
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -179,10 +193,15 @@ export default function Upload() {
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept={acceptValue}
           onChange={pick}
           style={{ display: 'none' }}
         />
+        {pickerMode ? (
+          <div className="up-count">
+            picker mode: {pickerMode} (accept={acceptValue ?? 'not set'})
+          </div>
+        ) : null}
 
         <div className="up-field">
           <label htmlFor="up-name">Your name (optional)</label>

@@ -150,6 +150,16 @@
   cursor: pointer;
 }
 
+.up-note {
+  padding: 13px 15px;
+  border-radius: 14px;
+  border: 1px solid rgba(232, 184, 75, 0.38);
+  background: rgba(232, 184, 75, 0.12);
+  font-size: 13.5px;
+  line-height: 1.5;
+  text-align: left;
+}
+
 .up-error {
   padding: 14px 16px;
   border-radius: 14px;

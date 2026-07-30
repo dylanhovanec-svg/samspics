@@ -9,6 +9,23 @@ import './Upload.css';
 const MAX_NAME = 60;
 const MAX_CAPTION = 140;
 
+// QR scanners on Android frequently open the link inside their own embedded
+// WebView rather than handing it to Chrome. Those WebViews commonly refuse
+// access to the photo gallery, leaving only the camera — which looks like a bug
+// in this page but cannot be fixed from inside it. Detect it and say so.
+function isAndroid() {
+  return typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '');
+}
+
+function isInAppBrowser() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return (
+    /; wv\)/.test(ua) ||
+    /\b(FBAN|FBAV|Instagram|Line|Snapchat|TikTok|Pinterest|WhatsApp|MicroMessenger)\b/i.test(ua)
+  );
+}
+
 export default function Upload() {
   const { search } = useLocation();
   const eventId = getEventId(search);
@@ -20,6 +37,8 @@ export default function Upload() {
   const [state, setState] = useState('idle'); // idle | sending | done
   const [error, setError] = useState(null);
   const fileRef = useRef(null);
+  const inApp = isInAppBrowser();
+  const android = isAndroid();
 
   // Object URLs leak if a guest picks several photos before sending.
   useEffect(() => {
@@ -35,6 +54,16 @@ export default function Upload() {
   const pick = (e) => {
     const chosen = e.target.files?.[0];
     if (chosen) {
+      // Some Android pickers hand back an empty MIME type, so fall back to the
+      // extension rather than rejecting a perfectly good photo.
+      const looksLikeImage =
+        chosen.type.startsWith('image/') ||
+        /\.(jpe?g|png|heic|heif|webp|gif)$/i.test(chosen.name || '');
+      if (!looksLikeImage) {
+        setError('That does not look like a photo. Pick an image and try again.');
+        e.target.value = '';
+        return;
+      }
       setFile(chosen);
       setError(null);
     }
@@ -101,10 +130,26 @@ export default function Upload() {
     <main className="up-root">
       <form className="up-card" onSubmit={submit}>
         <div>
-          <div className="eyebrow">Photo Circle</div>
+          <div className="eyebrow">Photo Wall</div>
           <h1 className="up-title">Add your photo</h1>
         </div>
         <p className="up-sub">It goes straight up on the big screen.</p>
+
+        {!inApp && android ? (
+          <div className="up-note">
+            Only offered <strong>Camera</strong> and <strong>Files</strong>? Your gallery photos are
+            in there — tap <strong>Files</strong>, then <strong>Images</strong> or{' '}
+            <strong>Recent</strong>.
+          </div>
+        ) : null}
+
+        {inApp ? (
+          <div className="up-note">
+            Only seeing the camera? This page was opened inside another app, which blocks your
+            photo gallery. Tap the <strong>⋮</strong> or <strong>Share</strong> icon and choose{' '}
+            <strong>Open in browser</strong> — then your gallery will be there.
+          </div>
+        ) : null}
 
         <button
           type="button"
@@ -124,9 +169,13 @@ export default function Upload() {
             </>
           )}
         </button>
-        {/* No `capture` attribute: on iOS it forces the camera and drops the
-            photo library from the sheet. Plain accept="image/*" gives guests
-            both — Take Photo and Choose from Library. */}
+        {/* Bare accept="image/*", deliberately.
+
+            No `capture`: on iOS that forces the camera and drops the photo
+            library. And no file extensions alongside image/*: Android maps
+            unrecognised extensions to application/octet-stream, which turns the
+            picker into a generic file chooser and drops the gallery — the
+            opposite of the intent. The chosen file is validated in JS instead. */}
         <input
           ref={fileRef}
           type="file"

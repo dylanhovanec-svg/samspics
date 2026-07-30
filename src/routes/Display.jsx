@@ -1,29 +1,41 @@
 import { useMemo } from 'react';
 import { useLocation } from 'react-router';
-import PhotoCircle from '../components/PhotoCircle.jsx';
+import Slideshow from '../components/Slideshow.jsx';
 import ConfigNotice from '../components/ConfigNotice.jsx';
 import { usePhotos } from '../hooks/usePhotos.js';
 import { useEventDoc } from '../hooks/useEventDoc.js';
 import { defaultEventId } from '../lib/eventId.js';
 import { isConfigured } from '../firebase.js';
 
-const DEMO_GRADIENTS = [
-  'linear-gradient(135deg,#e8b84b,#e0662f)',
-  'linear-gradient(135deg,#e06a8a,#8a4bd9)',
-  'linear-gradient(135deg,#4bd9c9,#3f7de0)',
-  'linear-gradient(135deg,#f2c14e,#e06a8a)',
-  'linear-gradient(135deg,#8a4bd9,#3f7de0)',
-  'linear-gradient(135deg,#e0662f,#e06a8a)',
+// Stand-ins for rehearsing before any photos exist. Deliberately a mix of
+// landscape, portrait and square so the letterboxing and blurred backdrop get
+// exercised the same way real phone photos will exercise them.
+const DEMO_SHAPES = [
+  [1600, 1200, '#e8b84b', '#e0662f'],
+  [1200, 1600, '#e06a8a', '#8a4bd9'],
+  [1600, 900, '#4bd9c9', '#3f7de0'],
+  [1080, 1080, '#f2c14e', '#e06a8a'],
+  [1200, 1600, '#8a4bd9', '#3f7de0'],
+  [1600, 1200, '#e0662f', '#e06a8a'],
 ];
 
-// Stand-ins for rehearsing the display before any photos exist. /?demo gives
-// six; /?demo=40 gives forty, which is how the ring gets checked at the sizes a
-// real event produces.
 function demoPhotos(n) {
-  return Array.from({ length: n }, (_, i) => ({
-    id: `demo-${i}`,
-    bg: DEMO_GRADIENTS[i % DEMO_GRADIENTS.length],
-  }));
+  return Array.from({ length: n }, (_, i) => {
+    const [w, h, a, b] = DEMO_SHAPES[i % DEMO_SHAPES.length];
+    const svg =
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">` +
+      `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">` +
+      `<stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/>` +
+      `</linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/>` +
+      `<text x="50%" y="50%" font-family="Georgia,serif" font-size="${Math.round(Math.min(w, h) / 4)}"` +
+      ` fill="rgba(0,0,0,0.45)" text-anchor="middle" dominant-baseline="central">${i + 1}</text></svg>`;
+    return {
+      id: `demo-${i}`,
+      url: `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`,
+      caption: i % 3 === 0 ? 'A sample caption for the wall' : undefined,
+      uploaderName: i % 3 === 0 ? 'Sample Guest' : undefined,
+    };
+  });
 }
 
 export default function Display() {
@@ -51,10 +63,11 @@ export default function Display() {
 
   return (
     <>
-      <div style={{ padding: '20px 20px 0' }}>
+      {/* Overlaid rather than stacked, so a sound config costs no layout. */}
+      <div style={{ position: 'fixed', top: 12, left: 12, right: 12, zIndex: 20 }}>
         <ConfigNotice />
       </div>
-      <PhotoCircle photos={shown} title={title} emptyMessage={emptyMessage} />
+      <Slideshow photos={shown} title={title} emptyMessage={emptyMessage} />
     </>
   );
 }

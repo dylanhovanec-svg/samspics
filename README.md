@@ -43,7 +43,7 @@ Following the build order in `HANDOFF.md`:
 - [x] 2. Firestore + Storage rules — deployed and verified against the live project
 - [x] 3. Guest upload page — guest photos go live immediately (see
       `src/lib/uploadPhoto.js` to switch to pre-moderation)
-- [x] 4. Display carousel, ported from `reference/EventPhotoCircle.jsx`
+- [x] 4. Display slideshow — full-frame photos, never cropped
 - [x] 5. Admin console — auth gate, bulk seed, moderation, title, QR
 - [ ] 6. Deploy
 
@@ -83,8 +83,9 @@ tells Vercel which major to use.
 
 ### Rehearsing the display
 
-`/?demo` renders six placeholder photos and `/?demo=40` renders forty, so the
-carousel can be checked on the venue screen before any real photos exist.
+`/?demo` renders six placeholder photos and `/?demo=40` renders forty, in a mix
+of landscape, portrait and square, so the slideshow can be checked on the venue
+screen before any real photos exist.
 
 ## Notes on dependencies
 

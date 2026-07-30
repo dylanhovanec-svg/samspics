@@ -119,16 +119,18 @@ export default function Upload() {
               <span className="up-pick-icon" aria-hidden="true">
                 ＋
               </span>
-              Take or choose a photo
-              <span className="up-pick-hint">Camera or camera roll</span>
+              Choose a photo
+              <span className="up-pick-hint">From your library, or take a new one</span>
             </>
           )}
         </button>
+        {/* No `capture` attribute: on iOS it forces the camera and drops the
+            photo library from the sheet. Plain accept="image/*" gives guests
+            both — Take Photo and Choose from Library. */}
         <input
           ref={fileRef}
           type="file"
           accept="image/*"
-          capture="environment"
           onChange={pick}
           style={{ display: 'none' }}
         />

@@ -3,20 +3,39 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 
+// Values pasted into .env pick up trailing spaces and carriage returns easily,
+// and Vite passes them through verbatim. A key with a stray \r is non-empty, so
+// it looks configured and then fails at the first call with a misleading
+// "api-key-not-valid". Trim before use.
+const clean = (v) => (typeof v === 'string' ? v.trim() : v);
+
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: clean(import.meta.env.VITE_FIREBASE_API_KEY),
+  authDomain: clean(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN),
+  projectId: clean(import.meta.env.VITE_FIREBASE_PROJECT_ID),
+  storageBucket: clean(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET),
+  messagingSenderId: clean(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
+  appId: clean(import.meta.env.VITE_FIREBASE_APP_ID),
 };
 
-// Vite inlines these at build time, so a missing value surfaces later as a
-// confusing Firebase error. Detect it up front and let the UI say so plainly.
 export const missingEnvKeys = Object.entries(firebaseConfig)
   .filter(([, value]) => !value)
   .map(([key]) => key);
+
+// Present-but-wrong is harder to spot than absent, so check the shapes too.
+// Firebase web API keys are 39 characters beginning with AIza.
+export const configWarnings = [];
+if (firebaseConfig.apiKey && !/^AIza[\w-]{35}$/.test(firebaseConfig.apiKey)) {
+  configWarnings.push(
+    `VITE_FIREBASE_API_KEY does not look like a Firebase key — got ${firebaseConfig.apiKey.length} characters starting "${firebaseConfig.apiKey.slice(0, 6)}". Expected 39 starting "AIza".`
+  );
+}
+if (firebaseConfig.projectId && !/^[a-z0-9-]+$/.test(firebaseConfig.projectId)) {
+  configWarnings.push(`VITE_FIREBASE_PROJECT_ID contains unexpected characters: "${firebaseConfig.projectId}"`);
+}
+if (firebaseConfig.appId && !firebaseConfig.appId.includes(':web:')) {
+  configWarnings.push('VITE_FIREBASE_APP_ID does not contain ":web:" — it may be the wrong app.');
+}
 
 export const isConfigured = missingEnvKeys.length === 0;
 

@@ -355,7 +355,15 @@ export default function Admin() {
     );
   }
 
-  if (!user) return <SignIn />;
+  // ConfigNotice self-hides when the config is sound, so this only appears when
+  // there is something concrete to report.
+  if (!user)
+    return (
+      <main className="ad-root">
+        <ConfigNotice />
+        <SignIn />
+      </main>
+    );
 
   return (
     <main className="ad-root">

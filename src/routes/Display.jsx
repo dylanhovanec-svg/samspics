@@ -51,11 +51,9 @@ export default function Display() {
 
   return (
     <>
-      {!isConfigured && (
-        <div style={{ padding: '20px 20px 0' }}>
-          <ConfigNotice />
-        </div>
-      )}
+      <div style={{ padding: '20px 20px 0' }}>
+        <ConfigNotice />
+      </div>
       <PhotoCircle photos={shown} title={title} emptyMessage={emptyMessage} />
     </>
   );
